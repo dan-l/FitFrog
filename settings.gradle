@@ -1,1 +1,0 @@
-include ':openflappybird', ':andengine', ':andenginePhysicsBox2dExtension'
