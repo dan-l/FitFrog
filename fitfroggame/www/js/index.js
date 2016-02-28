@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+var mAccel = mAccel || 0;
 var app = {
     // Application Constructor
     initialize: function() {
@@ -36,17 +37,41 @@ var app = {
         app.receivedEvent('deviceready');
         // console.log(navigator.camera);
         // console.log(Clarifai);
-        navigator.camera.getPicture(function cameraCallback(imageData) {
-           var image = imageData;
-           Clarifai.run(image,
-           function(tags) {
-               console.log(tags);
-           });
-        }, function error(err) {
-            console.log(err);
-        }, {
-            destinationType: Camera.DestinationType.DATA_URL
-        });
+        // navigator.camera.getPicture(function cameraCallback(imageData) {
+        //    var image = imageData;
+        //    Clarifai.run(image,
+        //    function(tags) {
+        //        console.log(tags);
+        //    });
+        // }, function error(err) {
+        //     console.log(err);
+        // }, {
+        //     destinationType: Camera.DestinationType.DATA_URL
+        // });
+
+        var options = { frequency: 200 };  // Update every 3 seconds
+
+        var watchID = navigator.accelerometer.watchAcceleration(onSuccess, onError, options);
+
+        function onSuccess(acceleration) {
+            var x = acceleration.x;
+            var y = acceleration.y;
+            var z = acceleration.z;
+
+            var mAccelCurrent = Math.sqrt(x*x + y*y + z*z);
+            mAccel = mAccel * 0.9 + mAccelCurrent * 0.1;
+            var element = document.getElementById('accelerometer');
+            element.innerHTML = 'Acceleration X: ' + acceleration.x         + '<br />' +
+                                'Acceleration Y: ' + acceleration.y         + '<br />' +
+                                'Acceleration Z: ' + acceleration.z         + '<br />' +
+                                'mAccel: '      + mAccel + '<br />';
+        }
+        // onError: Failed to get the acceleration
+        //
+        function onError() {
+            alert('onError!');
+        }
+
     },
     // Update DOM on a Received Event
     receivedEvent: function(id) {
