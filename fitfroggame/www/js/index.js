@@ -34,6 +34,19 @@ var app = {
     // function, we must explicitly call 'app.receivedEvent(...);'
     onDeviceReady: function() {
         app.receivedEvent('deviceready');
+        console.log(navigator.camera);
+        console.log(Clarifai);
+
+        navigator.camera.getPicture(function cameraCallback(imageData) {
+           var image =  "data:image/jpeg;base64," + imageData;
+           Clarifai.run(image,
+           function(tags) {
+               console.log(tags);
+           });
+        }, function error(err) {
+            console.log(err);
+        });
+
     },
     // Update DOM on a Received Event
     receivedEvent: function(id) {

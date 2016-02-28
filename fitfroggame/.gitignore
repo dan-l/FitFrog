@@ -1,2 +1,5 @@
 platforms
 plugins
+www/js/keys.js
+bower_components
+www/lib
