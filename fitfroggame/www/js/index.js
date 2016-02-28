@@ -36,9 +36,15 @@ var app = {
         app.receivedEvent('deviceready');
         console.log(navigator.camera);
         console.log(Clarifai);
-        Clarifai.run("http://blogs-images.forbes.com/insertcoin/files/2014/06/flappy-bird.jpg",
-        function(tags) {
-            console.log(tags);
+
+        navigator.camera.getPicture(function cameraCallback(imageData) {
+           var image =  "data:image/jpeg;base64," + imageData;
+           Clarifai.run(image,
+           function(tags) {
+               console.log(tags);
+           });
+        }, function error(err) {
+            console.log(err);
         });
 
     },
