@@ -96,8 +96,18 @@ FitFrog.Game.prototype = {
         
         this.addOneCoin();
 
+        var username = window.localStorage.getItem("username");
         this.score = 0;
-        this.labelScore = game.add.text(20, 20, "0", { font: "30px Arial", fill: "#ffffff" });
+        this.labelScore = game.add.text(20, 20, "", { font: "30px Arial", fill: "#ffffff" }); 
+        var that = this;
+        highScoreTable.where({ 
+           user_name: username
+        }).read().done(function(existingItems){
+            if (existingItems.length !== 0) {
+                that.score = existingItems[0].points;
+                that.labelScore.text = that.score;
+            }
+        });
 
         // Sounds
         this.jumpSound = game.add.audio('jump');
