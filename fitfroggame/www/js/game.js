@@ -10,6 +10,7 @@ var highScoreTable = client.getTable('highscore');
 var velocity = 0;
 
 FitFrog.Game.prototype = {
+    mostRecentObject: null,
     fight: {
         "monster": ["water", "bottle"]
     },
@@ -118,6 +119,8 @@ FitFrog.Game.prototype = {
     },
 
     addItem: function() {
+        if (SCREEN_WIDTH - 50 > this.lastObject.x && this.lastObject.x > SCREEN_WIDTH - 80)
+            return;
         var prob = Math.random();
         console.log(prob);
         if (prob > 0.9) {
@@ -139,6 +142,8 @@ FitFrog.Game.prototype = {
         monster.body.velocity.x = 0; 
         monster.checkWorldBounds = true;
         monster.outOfBoundsKill = true;
+
+        this.lastObject = monster;
     },
 
     addBox: function() {
@@ -148,6 +153,8 @@ FitFrog.Game.prototype = {
         box.body.velocity.x = 0;
         box.checkWorldBounds = true;
         box.outOfBoundsKill = true;
+
+        this.lastObject = box;
     },
 
     addOneCoin: function() {
@@ -164,6 +171,8 @@ FitFrog.Game.prototype = {
         // Kill the coin when it's no longer visible
         coin.checkWorldBounds = true;
         coin.outOfBoundsKill = true;
+
+        this.lastObject = coin;
     },
 
     update: function() {
@@ -179,29 +188,31 @@ FitFrog.Game.prototype = {
         // If the frog is out of the world (too high or too low), call the 'restartGame' function
         if (this.frog.inWorld == false)
             this.restartGame();
-        if (mAccel > 12 && this.running == false) {
-            this.startRunning();
-        } else if (mAccel < 12 && this.running == true) {
+        if (speed > 2.3 && this.running == false) {
+            var scaledUpSpeed = (200/3.7)*(speed - 2.3);
+            this.startRunning(scaledUpSpeed);
+        } else if (speed < 2.3 && this.running == true) {
             this.running = false;
             this.stopRunning();
         }
     },
 
-    startRunning: function() {
+    startRunning: function(xSpeed) {
         this.running = true;
         var game = this.game;
         this.frog.animations.frame = 2;
         this.frog.animations.play('walk', 8, true);
         this.coins.forEachAlive(function(c){
-            c.body.velocity.x = -200;
+            c.body.velocity.x = 1 - xSpeed;
         }, this);
 
         this.monsters.forEachAlive(function(m) {
-            m.body.velocity.x = -200;
+            m.body.velocity.x = 1 - xSpeed;
+            m.animations.play('idle', 5, true);
         }, this);
 
         this.boxes.forEachAlive(function(b) {
-            b.body.velocity.x = -200;
+            b.body.velocity.x = 1 - xSpeed;
         }, this);
         
         this.timer = game.time.events.loop(1000, this.addItem, this); 
@@ -217,6 +228,8 @@ FitFrog.Game.prototype = {
         }, this);
 
         this.monsters.forEachAlive(function(m) {
+            m.animations.stop('idle', true);
+            m.animations.frame = 0;
             m.body.velocity.x = 0;
         }, this);
 
