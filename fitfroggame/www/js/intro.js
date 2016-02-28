@@ -85,7 +85,7 @@ FitFrog.Intro.prototype = {
     actionRestartOnClick: function() {
         //delete user from local storage, and go back to login page
         window.localStorage.removeItem("username");
-        this.state.start('Game');  
+        this.state.start('Intro');  
     },
 
     leaderboardOnClick: function() {
