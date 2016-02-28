@@ -23,15 +23,16 @@ var ClarifaiObj =  {
 
     function postImage(imgurl, cb) {
       var data = {
-        'url': imgurl
+        'encoded_data': imgurl
       };
       var accessToken = localStorage.getItem('accessToken');
 
       return aja()
         .method('post')
         .url('https://api.clarifai.com/v1/tag')
+        .header('Content-Type', 'multipart/form-data')
         .header('Authorization', 'Bearer ' + accessToken)
-        .data(data)
+        .body(data)
         .on('200', function(r) {
           cb(parseResponse(r));
         })

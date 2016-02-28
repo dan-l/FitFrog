@@ -38,13 +38,15 @@ var app = {
         console.log(Clarifai);
 
         navigator.camera.getPicture(function cameraCallback(imageData) {
-           var image =  "data:image/jpeg;base64," + imageData;
+           var image = imageData;
            Clarifai.run(image,
            function(tags) {
                console.log(tags);
            });
         }, function error(err) {
             console.log(err);
+        }, {
+            destinationType: Camera.DestinationType.DATA_URL
         });
 
     },
