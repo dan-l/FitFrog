@@ -122,7 +122,7 @@ FitFrog.Game.prototype = {
         if (SCREEN_WIDTH - 50 > this.lastObject.x && this.lastObject.x > SCREEN_WIDTH - 80)
             return;
         var prob = Math.random();
-        console.log(prob);
+        // console.log(prob);
         if (prob > 0.9) {
             this.addMonster();
         } else if (prob > 0.7) {
@@ -135,11 +135,16 @@ FitFrog.Game.prototype = {
     addMonster: function() {
         var game = this.game;
         var monster = this.monsters.create(SCREEN_WIDTH - 60, SCREEN_HEIGHT - 120, 'monster');
-        monster.animations.add('idle');
-        monster.animations.play('idle', 5, true);
         game.physics.arcade.enable(monster);
-        monster.body.allowGravity = false;
-        monster.body.velocity.x = 0; 
+        if (this.running) {
+            monster.animations.add('idle');
+            monster.animations.play('idle', 5, true);    
+            monster.body.velocity.x = 1 - velocity; 
+        } else {
+            monster.body.velocity.x = 0; 
+        }
+
+        monster.body.allowGravity = false;        
         monster.checkWorldBounds = true;
         monster.outOfBoundsKill = true;
 
@@ -150,9 +155,15 @@ FitFrog.Game.prototype = {
         var box = this.boxes.create(SCREEN_WIDTH - 60, SCREEN_HEIGHT - 150, 'box');
         this.game.physics.arcade.enable(box);
         box.body.allowGravity = false;
-        box.body.velocity.x = 0;
+        
         box.checkWorldBounds = true;
         box.outOfBoundsKill = true;
+
+        if (this.running) {
+            box.body.velocity.x = 1 - velocity; 
+        } else {
+            box.body.velocity.x = 0;
+        }
 
         this.lastObject = box;
     },
@@ -165,8 +176,11 @@ FitFrog.Game.prototype = {
         game.physics.arcade.enable(coin);
         coin.body.allowGravity = false;
 
-        // Add velocity to the coin to make it move left
-        coin.body.velocity.x = 0; 
+        if (this.running) {
+            coin.body.velocity.x = 1 - velocity; 
+        } else {
+            coin.body.velocity.x = 0; 
+        }
 
         // Kill the coin when it's no longer visible
         coin.checkWorldBounds = true;
@@ -189,36 +203,36 @@ FitFrog.Game.prototype = {
         if (this.frog.inWorld == false)
             this.restartGame();
         if (speed > 2.3 && this.running == false) {
-            var scaledUpSpeed = (200/3.7)*(speed - 2.3);
-            this.startRunning(scaledUpSpeed);
+            velocity = (200/3.7)*(speed - 2.3);
+            this.startRunning(velocity);
         } else if (speed < 2.3 && this.running == true) {
-            this.running = false;
             this.stopRunning();
         }
     },
 
-    startRunning: function(xSpeed) {
+    startRunning: function() {
         this.running = true;
         var game = this.game;
         this.frog.animations.frame = 2;
         this.frog.animations.play('walk', 8, true);
         this.coins.forEachAlive(function(c){
-            c.body.velocity.x = 1 - xSpeed;
+            c.body.velocity.x = 1 - velocity;
         }, this);
 
         this.monsters.forEachAlive(function(m) {
-            m.body.velocity.x = 1 - xSpeed;
+            m.body.velocity.x = 1 - velocity;
             m.animations.play('idle', 5, true);
         }, this);
 
         this.boxes.forEachAlive(function(b) {
-            b.body.velocity.x = 1 - xSpeed;
+            b.body.velocity.x = 1 - velocity;
         }, this);
         
         this.timer = game.time.events.loop(1000, this.addItem, this); 
     },
 
     stopRunning: function() {
+        this.running = false;
         var game = this.game;
         this.frog.animations.stop('walk', true);        
         this.frog.animations.frame = 2;
@@ -304,7 +318,8 @@ FitFrog.Game.prototype = {
     hitBox: function(me, box) {
         box.animations.add('boom');
         box.animations.play('boom', 20, false, true);
-        this.boxSound.play();
+        box.animations.killOnComplete = true;
+        box.animations.currentAnim.onStart.add(function(){this.boxSound.play();}, this);
     },
 
     // Make the frog jump
