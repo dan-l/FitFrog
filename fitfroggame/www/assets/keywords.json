@@ -1,0 +1,7 @@
+{
+    "fire_monster": ["water", "ice", "swimming", "pool", "soda", "cold", "drink", "extinguisher"],
+    "water_monster": ["earth", "stone", "soil", "rock", "mountain"],
+    "wind_monster": ["fire", "sun", "heater", "heat"],
+    "earth_monster": ["lightning", "light", "lightbulb", "flashlight", "torch", "stove"],
+    "lightning_monster": ["wind", "fan", "air conditioner", "breath", "blow"]
+}
