@@ -36,9 +36,11 @@ FitFrog.Game.prototype = {
 
         // Audio
         game.load.audio('jump', 'assets/jump_sound.wav');
+        game.load.audio('coinCollect', 'assets/coin_sound.wav');
+        game.load.audio('breakBox', 'assets/break_box_sound.wav');
 
         // Pause button
-        this.game.load.image('pause_btn', 'assets/pause_icon.png');
+        this.game.load.image('pause_btn', 'assets/pause_button.png');
 
         this.running = false;
     },
@@ -111,6 +113,8 @@ FitFrog.Game.prototype = {
 
         // Sounds
         this.jumpSound = game.add.audio('jump');
+        this.coinSound = game.add.audio('coinCollect');
+        this.boxSound = game.add.audio('breakBox');
     },
 
     addItem: function() {
@@ -226,8 +230,12 @@ FitFrog.Game.prototype = {
     hitCoin: function(a, b) {
         var game = this.game;
         console.log("hit coin");
-        //this.coin.outOfBoundsKill = true;
+        
         // If the frog has already hit a pipe, we have nothing to do
+        
+        // Play coin sound
+        this.coinSound.play();
+        
         b.kill();
         this.score+=1;
         this.labelScore.text = this.score;
@@ -283,6 +291,7 @@ FitFrog.Game.prototype = {
     hitBox: function(me, box) {
         box.animations.add('boom');
         box.animations.play('boom', 20, false, true);
+        this.boxSound.play();
     },
 
     // Make the frog jump
