@@ -16,6 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 var speed = speed || 0;
 var oldLat = 0;
 var oldLon = 0;
@@ -38,6 +39,10 @@ var app = {
     // function, we must explicitly call 'app.receivedEvent(...);'
     onDeviceReady: function() {
         app.receivedEvent('deviceready');
+
+        window.open = cordova.InAppBrowser.open;
+
+
         navigator.geolocation.getCurrentPosition(function(c){
             console.log('CALLBACK' + c);
         });
@@ -86,6 +91,16 @@ var app = {
         }, function(err) {
              console.log("Error: Didnt get an update", err);
         });
+
+
+        bgLocationServices.registerForActivityUpdates(function(activities) {
+             console.log("We got an BG Update" + JSON.stringify(activities));
+        }, function(err) {
+             console.log("Error: Something went wrong", err);
+        });
+
+        bgLocationServices.start();
+
 
         bgLocationServices.registerForActivityUpdates(function(activities) {
              console.log("We got an BG Update" + JSON.stringify(activities));
