@@ -19,8 +19,14 @@ FitFrog.Game.prototype = {
         // Change the background color of the game
         game.stage.backgroundColor = '#71c5cf';
 
+        
+        // Load the sky
+        game.load.image('sky', 'assets/sky.png');
         // Load the ground
         game.load.image('ground', 'assets/platform.png');
+
+        // Load the clouds
+        game.load.image('cloud', 'assets/cloud_01.png');        
 
         //Frog animation
         game.load.spritesheet('frog', 'assets/frog_spritesheet.png',74,74,8);
@@ -53,8 +59,10 @@ FitFrog.Game.prototype = {
         this.platforms = this.game.add.group();
         this.monsters = this.game.add.group();
         this.boxes = this.game.add.group();
+        //game.add.sprite(0, 0, 'sky');
 
-
+        this.clouds=this.game.add.sprite(game.world.width/2, game.world.height/2, 'cloud');
+        this.animateCloud();
         // Pause button 
         var w = window.innerWidth - 75;
         var h = 20;
@@ -111,10 +119,22 @@ FitFrog.Game.prototype = {
             }
         });
 
+                this.game.add.tween(this.clouds).start();
+
         // Sounds
         this.jumpSound = game.add.audio('jump');
         this.coinSound = game.add.audio('coinCollect');
         this.boxSound = game.add.audio('breakBox');
+    },
+
+    animateCloud: function() {
+        var centerX = this.game.world.centerX;
+        var centerY = this.game.world.centerY;
+        var tween1 = this.game.add.tween(this.clouds).to({x: centerX - 250}, 4000, Phaser.Easing.Back.InOut, true, 0, Infinity, true);
+        //var tween2 = this.game.add.tween(this.clouds).to({x: centerX + 2000}, 2500);
+        //tween1.chain(tween2);
+        
+        // this.game.time.events.loop(5000, tween1.start, this);
     },
 
     addItem: function() {
