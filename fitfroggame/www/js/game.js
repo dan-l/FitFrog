@@ -4,6 +4,8 @@ FitFrog.Game = function(){};
 
 var SCREEN_WIDTH = window.innerWidth;
 var SCREEN_HEIGHT = window.innerHeight;
+var client = new WindowsAzure.MobileServiceClient('https://fitfrog.azure-mobile.net/', 'ChoWidsZrtNyUKhAzxAOMpOMieKnoH63');
+var highScoreTable = client.getTable('highscore');
 
 FitFrog.Game.prototype = {
     preload: function() { 
@@ -30,6 +32,9 @@ FitFrog.Game.prototype = {
         // Audio
         game.load.audio('jump', 'assets/jump.wav');  
 
+        // Pause button
+        this.game.load.image('pause_btn', 'assets/pause_icon.png');
+
     },
 
     create: function() { 
@@ -40,6 +45,12 @@ FitFrog.Game.prototype = {
         this.platforms = this.game.add.group();
         this.monsters = this.game.add.group();
         this.boxes = this.game.add.group();
+
+        // Pause button 
+        var w = window.innerWidth - 75;
+        var h = 20;
+        var pause_button = game.add.button(w,h,'pause_btn', this.pauseButtonOnClick, this, 2, 1, 0);
+
         // Adding a coin to a coins group
         this.coins = this.game.add.group();
         
@@ -188,6 +199,12 @@ FitFrog.Game.prototype = {
 
         // Add a vertical velocity to the frog
         this.frog.body.velocity.y = -200;
+    },
+
+    // Pause button
+    pauseButtonOnClick: function() {  
+        highScoreTable.insert({ user_name: "random", points: this.score});
+        this.state.start('Intro');  
     },
 
     // Restart the game
