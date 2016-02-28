@@ -8,6 +8,7 @@ var SCREEN_HEIGHT = window.innerHeight;
 var velocity = 0;
 
 FitFrog.Game.prototype = {
+    mostRecentObject: null,
     fight: {
         "monster": ["water", "bottle"]
     },
@@ -90,6 +91,8 @@ FitFrog.Game.prototype = {
     },
 
     addItem: function() {
+        if (SCREEN_WIDTH - 50 > this.lastObject.x && this.lastObject.x > SCREEN_WIDTH - 80)
+            return;
         var prob = Math.random();
         console.log(prob);
         if (prob > 0.9) {
@@ -111,6 +114,8 @@ FitFrog.Game.prototype = {
         monster.body.velocity.x = 0; 
         monster.checkWorldBounds = true;
         monster.outOfBoundsKill = true;
+
+        this.lastObject = monster;
     },
 
     addBox: function() {
@@ -120,6 +125,8 @@ FitFrog.Game.prototype = {
         box.body.velocity.x = 0;
         box.checkWorldBounds = true;
         box.outOfBoundsKill = true;
+
+        this.lastObject = box;
     },
 
     addOneCoin: function() {
@@ -136,6 +143,8 @@ FitFrog.Game.prototype = {
         // Kill the coin when it's no longer visible
         coin.checkWorldBounds = true;
         coin.outOfBoundsKill = true;
+
+        this.lastObject = coin;
     },
 
     update: function() {
