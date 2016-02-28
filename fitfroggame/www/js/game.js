@@ -35,7 +35,7 @@ FitFrog.Game.prototype = {
         game.load.spritesheet('box', 'assets/box_animation.png', 70, 70);
 
         // Audio
-        game.load.audio('jump', 'assets/jump.wav');
+        game.load.audio('jump', 'assets/jump_sound.wav');
 
         // Pause button
         this.game.load.image('pause_btn', 'assets/pause_icon.png');

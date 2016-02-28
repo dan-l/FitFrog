@@ -6,7 +6,7 @@ FitFrog.Intro.prototype = {
     preload: function() {
         // Change the background color of the game
         this.game.stage.backgroundColor = '#71c5cf';
-        this.game.load.image('btn_play', 'assets/btn_play.png'); 
+        this.game.load.image('btn_play', 'assets/square_playButton.png'); 
         this.game.load.image('btn_restart', 'assets/round_restartButton.png'); 
         this.game.load.image('btn_resume', 'assets/round_resumeButton.png'); 
         this.game.load.image('leader_board_btn', 'assets/trophy-gold.png');
