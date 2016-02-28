@@ -335,10 +335,14 @@ public class BackgroundLocationUpdateService
         Log.w(TAG, "Activity is recording" + isRecording);
 
         if(lastActivity.getType() == DetectedActivity.STILL && isRecording) {
-          Toast.makeText(context, "Detected Activity was STILL, Stop recording", Toast.LENGTH_SHORT).show();
+          if(isDebugging) {
+            Toast.makeText(context, "Detected Activity was STILL, Stop recording", Toast.LENGTH_SHORT).show();
+          }
           stopRecording();
         } else if(lastActivity.getType() != DetectedActivity.STILL && !isRecording) {
-          Toast.makeText(context, "Detected Activity was ACTIVE, Start Recording", Toast.LENGTH_SHORT).show();
+          if(isDebugging) {
+            Toast.makeText(context, "Detected Activity was ACTIVE, Start Recording", Toast.LENGTH_SHORT).show();
+          }
           startRecording();
         }
         //else do nothing
