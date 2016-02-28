@@ -14,10 +14,10 @@ FitFrog.Game.prototype = {
         // Load the ground
         game.load.image('ground', 'assets/platform.png');  
 
-        // Load the frog sprite/animation
+        //Frog animation
         game.load.spritesheet('frog', 'assets/frog_spritesheet.png',74,74,8); 
 
-        // Coin animation
+        //Coin animation
         game.load.spritesheet('coin', 'assets/coin_animation.png', 40, 40);
 
         // Audio
@@ -36,6 +36,8 @@ FitFrog.Game.prototype = {
         
         //  The platforms group contains the ground and the 2 ledges we can jump on
         this.platforms = this.game.add.group();
+        // Adding a coin to a coins group
+        this.coins = this.game.add.group();
         
         //  We will enable physics for any object that is created in this group
         this.platforms.enableBody = true;
@@ -72,6 +74,7 @@ FitFrog.Game.prototype = {
     addOneCoin: function() { 
         var game = this.game; 
         var coin = this.game.add.sprite(SCREEN_WIDTH - 60, SCREEN_HEIGHT - 120, 'coin');
+        coin = this.coins.create(SCREEN_WIDTH - 60, SCREEN_HEIGHT - 120, 'coin');
         coin.animations.add('idle');
         coin.animations.play('idle', 6, true);
         game.physics.arcade.enable(coin);
@@ -85,26 +88,27 @@ FitFrog.Game.prototype = {
         coin.outOfBoundsKill = true;
     },
 
-    addRowOfPipes: function() {  
-        var game = this.game;
-        // Add the 6 pipes 
-        for (var i = 0; i < 8; i++)
-            if (i != hole && i != hole + 1) 
-                this.addOnePipe(i * 60 + 10, SCREEN_HEIGHT - 60);  
-        
-        this.score += 1;  
-        this.labelScore.text = this.score; 
-    },
-
     update: function() {
         var game = this.game;
         //  Collide the player and the stars with the this.platforms
         game.physics.arcade.collide(this.frog, this.platforms);
+
+        //  As we don't need to exchange any velocities or motion we can the 'overlap' check instead of 'collide'
+        game.physics.arcade.overlap(this.frog, this.coins, this.hitCoin, null, this);
+
         // If the frog is out of the world (too high or too low), call the 'restartGame' function
         if (this.frog.inWorld == false)
             this.restartGame();
+    },
 
-        game.physics.arcade.overlap(this.frog, this.pipes, this.hitPipe, null, this); 
+    hitCoin: function(a, b) {
+        var game = this.game;
+        console.log("hit coin");
+        //this.coin.outOfBoundsKill = true;
+        // If the frog has already hit a pipe, we have nothing to do
+        b.kill();
+        this.score+=1;
+        this.labelScore.text = this.score;     
     },
 
     hitPipe: function() { 
