@@ -244,7 +244,7 @@ FitFrog.Game.prototype = {
                     cb.call(this, b, tags, tags.filter(function(tag) {
                         return weapons.indexOf(tag) > -1;
                     }).length > 0);
-            }.bind(this));
+                }.bind(this));
         }.bind(this), function error(err) {
             console.log(err);
         }, {
@@ -290,7 +290,17 @@ FitFrog.Game.prototype = {
 
     // Pause button
     pauseButtonOnClick: function() {  
-        highScoreTable.insert({ user_name: window.localStorage.getItem("username"), points: this.score});
+        var username = window.localStorage.getItem("username");
+        var score = this.score;
+        highScoreTable.where({ 
+           user_name: username
+        }).read().then(function(existingItems){
+            if (existingItems.length === 0) {
+                highScoreTable.insert({user_name: username, points: score});
+            } else {
+                highScoreTable.update({id: existingItems[0].id, points: score});
+            }
+        });
         this.state.start('Intro');  
     },
 

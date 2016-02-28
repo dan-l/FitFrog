@@ -76,6 +76,6 @@ FitFrog.Intro.prototype = {
     },
 
     leaderboardOnClick: function() {
-        var ref = cordova.InAppBrowser.open('http://fitfrog2.azurewebsites.net/', '_blank', 'location=no');
+        var ref = cordova.InAppBrowser.open('http://fitfrog2.azurewebsites.net/', '_self', 'location=no,zoom=no');
     }
 };
