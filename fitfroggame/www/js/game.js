@@ -132,7 +132,7 @@ FitFrog.Game.prototype = {
     animateCloud: function() {
         var centerX = this.game.world.centerX;
         var centerY = this.game.world.centerY;
-        var tween1 = this.game.add.tween(this.clouds).to({x: centerX - 250}, 4000, Phaser.Easing.Elastic.InOut, true, 0, Infinity, true);
+        var tween1 = this.game.add.tween(this.clouds).to({x: centerX - 250}, 5000, null, true, 0, Infinity, true);
         //var tween2 = this.game.add.tween(this.clouds).to({x: centerX + 2000}, 2500);
         //tween1.chain(tween2);
         
