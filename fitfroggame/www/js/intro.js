@@ -10,6 +10,7 @@ FitFrog.Intro.prototype = {
         this.game.load.image('btn_restart', 'assets/round_restartButton.png'); 
         this.game.load.image('btn_resume', 'assets/round_resumeButton.png'); 
         this.game.load.image('leader_board_btn', 'assets/trophy-gold.png');
+        this.game.load.image('logo', 'assets/logo.png');
     },
 
     create: function() {
@@ -19,9 +20,12 @@ FitFrog.Intro.prototype = {
         var w = window.innerWidth - 75;
         var h = 20;
 
-        this.title = game.add.text(centerX-60, centerY - 25, "FitFrog", { font: "30px Arial", fill: "#ffffff" }); 
-        var titleWidth = this.title.width;
-        this.title.x = centerX - titleWidth/2;
+        // this.title = game.add.text(centerX-60, centerY - 25, "FitFrog", { font: "30px Arial", fill: "#ffffff" }); 
+        // var titleWidth = this.title.width;
+        // this.title.x = centerX - titleWidth/2;
+        this.logo = this.game.add.sprite(centerX, centerY - 70, 'logo');
+        this.logo.anchor.setTo(0.5);
+
         var leader_button = game.add.button(w, h, 'leader_board_btn', this.leaderboardOnClick, this, 2, 1, 0);
 
         if(window.localStorage.getItem("username") == null) {
@@ -30,6 +34,7 @@ FitFrog.Intro.prototype = {
             console.log("This is new user");
             this.input = document.createElement("input");
             this.input.type = "text";
+            this.input.placeholder = "Enter your name"
             this.input.addEventListener("keyup",this.keyBoardHideHandler.bind(this));
             this.gameDiv = document.getElementById("game");
             //name of the user
@@ -39,7 +44,7 @@ FitFrog.Intro.prototype = {
             this.input.style.left = centerX/2 + "px";
             this.input.style.width = centerX + "px";
             this.gameDiv.appendChild(this.input); // put it into the DOM        
-            var play_button = game.add.button(centerX-45, centerY + 50, 'btn_play', this.actionPlayOnClick, this, 2, 1, 0);
+            var play_button = game.add.button(centerX-45, centerY + 60, 'btn_play', this.actionPlayOnClick, this, 2, 1, 0);
 
         }
         else {
