@@ -10,6 +10,7 @@ var highScoreTable = client.getTable('highscore');
 var velocity = 0;
 
 FitFrog.Game.prototype = {
+    mostRecentObject: null,
     fight: {
         "monster": ["water", "bottle"]
     },
@@ -64,6 +65,7 @@ FitFrog.Game.prototype = {
         this.clouds=this.game.add.sprite(game.world.width/2, game.world.height/2, 'cloud');
         this.animateCloud();
         // Pause button 
+
         var w = window.innerWidth - 75;
         var h = 20;
         var pause_button = game.add.button(w,h,'pause_btn', this.pauseButtonOnClick, this, 2, 1, 0);
@@ -102,15 +104,15 @@ FitFrog.Game.prototype = {
         var spaceKey = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
         spaceKey.onDown.add(this.jump, this);
 
-        game.input.onDown.add(this.jump, this);   
-        
+        game.input.onDown.add(this.jump, this);
+
         this.addOneCoin();
 
         var username = window.localStorage.getItem("username");
         this.score = 0;
-        this.labelScore = game.add.text(20, 20, "", { font: "30px Arial", fill: "#ffffff" }); 
+        this.labelScore = game.add.text(20, 20, "", { font: "30px Arial", fill: "#ffffff" });
         var that = this;
-        highScoreTable.where({ 
+        highScoreTable.where({
            user_name: username
         }).read().done(function(existingItems){
             if (existingItems.length !== 0) {
@@ -138,8 +140,9 @@ FitFrog.Game.prototype = {
     },
 
     addItem: function() {
+        if (SCREEN_WIDTH - 50 > this.lastObject.x && this.lastObject.x > SCREEN_WIDTH - 80)
+            return;
         var prob = Math.random();
-        console.log(prob);
         if (prob > 0.9) {
             this.addMonster();
         } else if (prob > 0.7) {
@@ -152,22 +155,37 @@ FitFrog.Game.prototype = {
     addMonster: function() {
         var game = this.game;
         var monster = this.monsters.create(SCREEN_WIDTH - 60, SCREEN_HEIGHT - 120, 'monster');
-        monster.animations.add('idle');
-        monster.animations.play('idle', 5, true);
         game.physics.arcade.enable(monster);
+        if (this.running) {
+            monster.animations.add('idle');
+            monster.animations.play('idle', 5, true);
+            monster.body.velocity.x = 1 - velocity;
+        } else {
+            monster.body.velocity.x = 0;
+        }
+
         monster.body.allowGravity = false;
-        monster.body.velocity.x = 0; 
         monster.checkWorldBounds = true;
         monster.outOfBoundsKill = true;
+
+        this.lastObject = monster;
     },
 
     addBox: function() {
-        var box = this.boxes.create(SCREEN_WIDTH - 60, SCREEN_HEIGHT - 150, 'box');
+        var box = this.boxes.create(SCREEN_WIDTH - 60, SCREEN_HEIGHT - 230, 'box');
         this.game.physics.arcade.enable(box);
         box.body.allowGravity = false;
-        box.body.velocity.x = 0;
+
         box.checkWorldBounds = true;
         box.outOfBoundsKill = true;
+
+        if (this.running) {
+            box.body.velocity.x = 1 - velocity;
+        } else {
+            box.body.velocity.x = 0;
+        }
+
+        this.lastObject = box;
     },
 
     addOneCoin: function() {
@@ -178,12 +196,17 @@ FitFrog.Game.prototype = {
         game.physics.arcade.enable(coin);
         coin.body.allowGravity = false;
 
-        // Add velocity to the coin to make it move left
-        coin.body.velocity.x = 0; 
+        if (this.running) {
+            coin.body.velocity.x = 1 - velocity;
+        } else {
+            coin.body.velocity.x = 0;
+        }
 
         // Kill the coin when it's no longer visible
         coin.checkWorldBounds = true;
         coin.outOfBoundsKill = true;
+
+        this.lastObject = coin;
     },
 
     update: function() {
@@ -199,10 +222,10 @@ FitFrog.Game.prototype = {
         // If the frog is out of the world (too high or too low), call the 'restartGame' function
         if (this.frog.inWorld == false)
             this.restartGame();
-        if (mAccel > 12 && this.running == false) {
-            this.startRunning();
-        } else if (mAccel < 12 && this.running == true) {
-            this.running = false;
+        if (speed > 2.3 && this.running == false) {
+            velocity = (200/3.7)*(speed - 2.3) + 100;
+            this.startRunning(velocity);
+        } else if (speed < 2.3 && this.running == true) {
             this.stopRunning();
         }
     },
@@ -213,23 +236,25 @@ FitFrog.Game.prototype = {
         this.frog.animations.frame = 2;
         this.frog.animations.play('walk', 8, true);
         this.coins.forEachAlive(function(c){
-            c.body.velocity.x = -200;
+            c.body.velocity.x = 1 - velocity;
         }, this);
 
         this.monsters.forEachAlive(function(m) {
-            m.body.velocity.x = -200;
+            m.body.velocity.x = 1 - velocity;
+            m.animations.play('idle', 5, true);
         }, this);
 
         this.boxes.forEachAlive(function(b) {
-            b.body.velocity.x = -200;
+            b.body.velocity.x = 1 - velocity;
         }, this);
-        
-        this.timer = game.time.events.loop(1000, this.addItem, this); 
+
+        this.timer = game.time.events.loop(1000, this.addItem, this);
     },
 
     stopRunning: function() {
+        this.running = false;
         var game = this.game;
-        this.frog.animations.stop('walk', true);        
+        this.frog.animations.stop('walk', true);
         this.frog.animations.frame = 2;
 
         this.coins.forEachAlive(function(c){
@@ -237,6 +262,8 @@ FitFrog.Game.prototype = {
         }, this);
 
         this.monsters.forEachAlive(function(m) {
+            m.animations.stop('idle', true);
+            m.animations.frame = 0;
             m.body.velocity.x = 0;
         }, this);
 
@@ -250,12 +277,12 @@ FitFrog.Game.prototype = {
     hitCoin: function(a, b) {
         var game = this.game;
         console.log("hit coin");
-        
+
         // If the frog has already hit a pipe, we have nothing to do
-        
+
         // Play coin sound
         this.coinSound.play();
-        
+
         b.kill();
         this.score+=1;
         this.labelScore.text = this.score;
@@ -268,7 +295,12 @@ FitFrog.Game.prototype = {
         // Stop timer.
         game.time.events.remove(this.timer);
 
-        alert("FIGHTING!");
+        navigator.notification.alert(
+            'FIRE DRAGON would like to battle',
+            null,
+            'Fight Club',
+            'Fight'
+        );
         this.fightMonster(b, this.postFightMonster);
     },
 
@@ -292,7 +324,12 @@ FitFrog.Game.prototype = {
 
     postFightMonster: function(b, tags, victory) {
         if (victory) {
-            alert('You win ', tags)
+            navigator.notification.alert(
+                'The item is super effective! You have defeated the FIRE DRAGON!',
+                null,
+                'Game Over',
+                'Well Done'
+            );
             this.game.paused = false;
             b.kill();
             // Restart timer.
@@ -303,7 +340,12 @@ FitFrog.Game.prototype = {
             // }, this);
 
         } else {
-            alert('You lose ', tags);
+            navigator.notification.alert(
+                'The item is not very effective.. Try again.',
+                null,
+                'Game Over',
+                'Try again'
+            );
             this.fightMonster(b, this.postFightMonster)
         }
     },
@@ -311,7 +353,8 @@ FitFrog.Game.prototype = {
     hitBox: function(me, box) {
         box.animations.add('boom');
         box.animations.play('boom', 20, false, true);
-        this.boxSound.play();
+        box.animations.killOnComplete = true;
+        box.animations.currentAnim.onStart.add(function(){this.boxSound.play();}, this);
     },
 
     // Make the frog jump
@@ -328,10 +371,10 @@ FitFrog.Game.prototype = {
     },
 
     // Pause button
-    pauseButtonOnClick: function() {  
+    pauseButtonOnClick: function() {
         var username = window.localStorage.getItem("username");
         var score = this.score;
-        highScoreTable.where({ 
+        highScoreTable.where({
            user_name: username
         }).read().then(function(existingItems){
             if (existingItems.length === 0) {
@@ -340,7 +383,7 @@ FitFrog.Game.prototype = {
                 highScoreTable.update({id: existingItems[0].id, points: score});
             }
         });
-        this.state.start('Intro');  
+        this.state.start('Intro');
     },
 
     // Restart the game
