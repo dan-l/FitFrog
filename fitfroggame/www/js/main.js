@@ -14,8 +14,8 @@ var mainState = {
         // Load the ground
         game.load.image('ground', 'assets/platform.png');  
 
-        // Load the frog sprite
-        game.load.image('frog', 'assets/frog_05.png'); 
+        // Load the frog sprite/animation
+        game.load.spritesheet('frog', 'assets/frog_spritesheet.png',74,74,8); 
 
         // Coin animation
         game.load.spritesheet('coin', 'assets/coin_animation.png', 40, 40);
@@ -29,16 +29,20 @@ var mainState = {
         // Set the physics system
         game.physics.startSystem(Phaser.Physics.ARCADE);
 
-        // Display the frog on the screen
+        // Display the frog on the screen        
         this.frog = this.game.add.sprite(100, 400, 'frog');
-
+        this.frog.animations.add('walk');
+        this.frog.animations.play('walk',8,true);
+        
         //  The platforms group contains the ground and the 2 ledges we can jump on
         this.platforms = this.game.add.group();
+        
         //  We will enable physics for any object that is created in this group
         this.platforms.enableBody = true;
 
         // Here we create the ground.
         var ground = this.platforms.create(0, game.world.height - 64, 'ground');
+        
         //  Scale it to fit the width of the game (the original sprite is 400x32 in size)
         ground.scale.setTo(window.innerWidth/400, 2);
 
@@ -49,8 +53,11 @@ var mainState = {
 
         // Add gravity to the frog to make it fall
         game.physics.arcade.enable(this.frog);
-        this.frog.body.gravity.y = 300;  
-       
+          //  Player physics properties. Give the little guy a slight bounce.
+        this.frog.body.bounce.y = 0.2;
+        this.frog.body.gravity.y = 300;
+        this.frog.body.collideWorldBounds = true;
+
         // Call the 'jump' function when touched
         var spaceKey = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
         spaceKey.onDown.add(this.jump, this);
