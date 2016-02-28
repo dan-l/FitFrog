@@ -11,8 +11,11 @@ FitFrog.Game.prototype = {
         // Change the background color of the game
         game.stage.backgroundColor = '#71c5cf';
 
-        // Load the bird sprite
-        game.load.image('bird', 'assets/bird.png'); 
+        // Load the ground
+        game.load.image('ground', 'assets/platform.png');  
+
+        // Load the frog sprite/animation
+        game.load.spritesheet('frog', 'assets/frog_spritesheet.png',74,74,8); 
 
         // Coin animation
         game.load.spritesheet('coin', 'assets/coin_animation.png', 40, 40);
@@ -26,14 +29,32 @@ FitFrog.Game.prototype = {
         var game = this.game;
         // Set the physics system
         game.physics.startSystem(Phaser.Physics.ARCADE);
+        // Display the frog on the screen        
+        this.frog = this.game.add.sprite(100, game.world.height - 150, 'frog');
+        this.frog.animations.add('walk');
+        this.frog.animations.play('walk',8,true);
+        
+        //  The platforms group contains the ground and the 2 ledges we can jump on
+        this.platforms = this.game.add.group();
+        
+        //  We will enable physics for any object that is created in this group
+        this.platforms.enableBody = true;
 
-        // Display the bird on the screen
-        this.bird = this.game.add.sprite(100, 245, 'bird');
+        // Here we create the ground.
+        var ground = this.platforms.create(0, game.world.height - 64, 'ground');
+        
+        //  Scale it to fit the width of the game (the original sprite is 400x32 in size)
+        ground.scale.setTo(window.innerWidth/400, 2);
 
-        // Add gravity to the bird to make it fall
-        game.physics.arcade.enable(this.bird);
-        this.bird.body.gravity.y = 1000;  
+        //  This stops it from falling away when you jump on it
+        ground.body.immovable = true;
 
+        //  Add gravity to the frog to make it fall
+        game.physics.arcade.enable(this.frog);
+        //  Player physics properties. Give the little guy a slight bounce.
+        this.frog.body.bounce.y = 0.2;
+        this.frog.body.gravity.y = 300;
+        this.frog.body.collideWorldBounds = true;
         // Call the 'jump' function when touched
         var spaceKey = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
         spaceKey.onDown.add(this.jump, this);
@@ -50,7 +71,7 @@ FitFrog.Game.prototype = {
 
     addOneCoin: function() { 
         var game = this.game; 
-        var coin = this.game.add.sprite(SCREEN_WIDTH - 60, SCREEN_HEIGHT - 60, 'coin');
+        var coin = this.game.add.sprite(SCREEN_WIDTH - 60, SCREEN_HEIGHT - 120, 'coin');
         coin.animations.add('idle');
         coin.animations.play('idle', 6, true);
         game.physics.arcade.enable(coin);
@@ -77,21 +98,23 @@ FitFrog.Game.prototype = {
 
     update: function() {
         var game = this.game;
-        // If the bird is out of the world (too high or too low), call the 'restartGame' function
-        if (this.bird.inWorld == false)
+        //  Collide the player and the stars with the this.platforms
+        game.physics.arcade.collide(this.frog, this.platforms);
+        // If the frog is out of the world (too high or too low), call the 'restartGame' function
+        if (this.frog.inWorld == false)
             this.restartGame();
 
-        game.physics.arcade.overlap(this.bird, this.pipes, this.hitPipe, null, this); 
+        game.physics.arcade.overlap(this.frog, this.pipes, this.hitPipe, null, this); 
     },
 
     hitPipe: function() { 
         var game = this.game; 
-        // If the bird has already hit a pipe, we have nothing to do
-        if (this.bird.alive == false)
+        // If the frog has already hit a pipe, we have nothing to do
+        if (this.frog.alive == false)
             return;
 
-        // Set the alive property of the bird to false
-        this.bird.alive = false;
+        // Set the alive property of the frog to false
+        this.frog.alive = false;
 
         // Prevent new pipes from appearing
         game.time.events.remove(this.timer);
@@ -102,16 +125,17 @@ FitFrog.Game.prototype = {
         }, this);
     },
 
-    // Make the bird jump 
+    // Make the frog jump 
     jump: function() {  
         var game = this.game;
-        if (this.bird.alive == false)  
+        if (this.frog.alive == false)  
             return; 
 
         // Play jump sound
         this.jumpSound.play(); 
-        // Add a vertical velocity to the bird
-        this.bird.body.velocity.y = -350;
+
+        // Add a vertical velocity to the frog
+        this.frog.body.velocity.y = -200;
     },
 
     // Restart the game
