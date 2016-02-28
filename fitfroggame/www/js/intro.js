@@ -19,7 +19,9 @@ FitFrog.Intro.prototype = {
         var w = window.innerWidth - 75;
         var h = 20;
 
-        this.title = game.add.text(centerX, centerY - 20, "FitFrog", { font: "30px Arial", fill: "#ffffff" }); 
+        this.title = game.add.text(centerX-60, centerY - 25, "FitFrog", { font: "30px Arial", fill: "#ffffff" }); 
+        var titleWidth = this.title.width;
+        this.title.x = centerX - titleWidth/2;
         var leader_button = game.add.button(w, h, 'leader_board_btn', this.leaderboardOnClick, this, 2, 1, 0);
 
         if(window.localStorage.getItem("username") == null) {
@@ -34,17 +36,18 @@ FitFrog.Intro.prototype = {
             this.input.style.position = "absolute";
             this.input.id = "user-input-field";
             this.input.style.top = centerY+20 + "px";
-            this.input.style.left = centerX-30 + "px";
+            this.input.style.left = centerX/2 + "px";
+            this.input.style.width = centerX + "px";
             this.gameDiv.appendChild(this.input); // put it into the DOM        
-            var play_button = game.add.button(centerX, centerY + 50, 'btn_play', this.actionPlayOnClick, this, 2, 1, 0);
+            var play_button = game.add.button(centerX-45, centerY + 50, 'btn_play', this.actionPlayOnClick, this, 2, 1, 0);
 
         }
         else {
             //Already run this app before. Recognized user. 
             //redirect to resume page
             console.log("This is returning user");
-            var resume_button = game.add.button(centerX-20, centerY + 30, 'btn_resume', this.actionResumeOnClick, this, 2, 1, 0);
-            var restart_button = game.add.button(centerX-20, centerY + 90, 'btn_restart', this.actionRestartOnClick, this, 2, 1, 0);
+            var resume_button = game.add.button(centerX-67, centerY + 30, 'btn_resume', this.actionResumeOnClick, this, 2, 1, 0);
+            var restart_button = game.add.button(centerX-67, centerY + 90, 'btn_restart', this.actionRestartOnClick, this, 2, 1, 0);
         }
     },
 
