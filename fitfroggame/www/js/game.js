@@ -8,6 +8,7 @@ var SCREEN_HEIGHT = window.innerHeight;
 FitFrog.Game.prototype = {
     preload: function() { 
         var game = this.game;
+
         // Change the background color of the game
         game.stage.backgroundColor = '#71c5cf';
 
@@ -20,6 +21,12 @@ FitFrog.Game.prototype = {
         // Coin animation
         game.load.spritesheet('coin', 'assets/coin_animation.png', 40, 40);
 
+        // Monster animation
+        game.load.spritesheet('monster', 'assets/dragon_animation.png', 70, 70, 5);
+
+        // Box animation
+        game.load.spritesheet('box', 'assets/box_animation.png', 70, 70);
+
         // Audio
         game.load.audio('jump', 'assets/jump.wav');  
 
@@ -29,19 +36,21 @@ FitFrog.Game.prototype = {
         var game = this.game;
         // Set the physics system
         game.physics.startSystem(Phaser.Physics.ARCADE);
-        // Display the frog on the screen        
-        this.frog = this.game.add.sprite(100, game.world.height - 150, 'frog');
-        this.frog.animations.add('walk');
-        this.frog.animations.play('walk',8,true);
         
-        //  The platforms group contains the ground and the 2 ledges we can jump on
         this.platforms = this.game.add.group();
+        this.monsters = this.game.add.group();
+        this.boxes = this.game.add.group();
         
         //  We will enable physics for any object that is created in this group
         this.platforms.enableBody = true;
 
         // Here we create the ground.
         var ground = this.platforms.create(0, game.world.height - 64, 'ground');
+
+        // Display the frog on the screen        
+        this.frog = this.game.add.sprite(100, game.world.height - 150, 'frog');
+        this.frog.animations.add('walk');
+        this.frog.animations.play('walk',8,true);
         
         //  Scale it to fit the width of the game (the original sprite is 400x32 in size)
         ground.scale.setTo(window.innerWidth/400, 2);
@@ -60,13 +69,46 @@ FitFrog.Game.prototype = {
         spaceKey.onDown.add(this.jump, this);
         game.input.onDown.add(this.jump, this);   
         
-        this.timer = game.time.events.loop(1000, this.addOneCoin, this); 
+        this.timer = game.time.events.loop(1000, this.addItem, this); 
 
         this.score = 0;
         this.labelScore = game.add.text(20, 20, "0", { font: "30px Arial", fill: "#ffffff" }); 
 
         // Sounds
         this.jumpSound = game.add.audio('jump');  
+    },
+
+    addItem: function() {
+        var prob = Math.random();
+        console.log(prob);
+        if (prob > 0.9) {
+            this.addMonster();
+        } else if (prob > 0.7) {
+            this.addBox();
+        } else {
+            this.addOneCoin();
+        }
+    },
+
+    addMonster: function() {
+        var game = this.game;
+        var monster = this.monsters.create(SCREEN_WIDTH - 60, SCREEN_HEIGHT - 120, 'monster');
+        monster.animations.add('idle');
+        monster.animations.play('idle', 5, true);
+        game.physics.arcade.enable(monster);
+        monster.body.allowGravity = false;
+        monster.body.velocity.x = -200; 
+        monster.checkWorldBounds = true;
+        monster.outOfBoundsKill = true;
+    },
+
+    addBox: function() {
+        var box = this.boxes.create(SCREEN_WIDTH - 60, SCREEN_HEIGHT - 150, 'box');
+        this.game.physics.arcade.enable(box);
+        box.body.allowGravity = false;
+        box.body.velocity.x = -200;
+        box.checkWorldBounds = true;
+        box.outOfBoundsKill = true;
     },
 
     addOneCoin: function() { 
@@ -85,17 +127,6 @@ FitFrog.Game.prototype = {
         coin.outOfBoundsKill = true;
     },
 
-    addRowOfPipes: function() {  
-        var game = this.game;
-        // Add the 6 pipes 
-        for (var i = 0; i < 8; i++)
-            if (i != hole && i != hole + 1) 
-                this.addOnePipe(i * 60 + 10, SCREEN_HEIGHT - 60);  
-        
-        this.score += 1;  
-        this.labelScore.text = this.score; 
-    },
-
     update: function() {
         var game = this.game;
         //  Collide the player and the stars with the this.platforms
@@ -104,25 +135,31 @@ FitFrog.Game.prototype = {
         if (this.frog.inWorld == false)
             this.restartGame();
 
-        game.physics.arcade.overlap(this.frog, this.pipes, this.hitPipe, null, this); 
+        game.physics.arcade.overlap(this.frog, this.monsters, this.hitMonster, null, this); 
+        game.physics.arcade.overlap(this.frog, this.boxes, this.hitBox, null, this); 
     },
 
-    hitPipe: function() { 
+    hitMonster: function(a, b) { 
+        console.log("HIT MONSTER");
         var game = this.game; 
-        // If the frog has already hit a pipe, we have nothing to do
-        if (this.frog.alive == false)
-            return;
-
-        // Set the alive property of the frog to false
-        this.frog.alive = false;
-
-        // Prevent new pipes from appearing
+        
+        // Stop timer.
         game.time.events.remove(this.timer);
+        
+        alert("FIGHTING!");
+        b.kill();
 
+        // Restart timer.
+        this.timer = game.time.events.loop(1000, this.addItem, this); 
         // Go through all the pipes, and stop their movement
-        this.pipes.forEachAlive(function(p){
-            p.body.velocity.x = 0;
-        }, this);
+        // this.pipes.forEachAlive(function(p){
+        //     p.body.velocity.x = 0;
+        // }, this);
+    },
+
+    hitBox: function(me, box) {
+        box.animations.add('boom');
+        box.animations.play('boom', 20, false, true);
     },
 
     // Make the frog jump 
