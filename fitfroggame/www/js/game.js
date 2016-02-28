@@ -24,7 +24,7 @@ FitFrog.Game.prototype = {
         // Load the sky
         game.load.image('sky', 'assets/sky.png');
         // Load the ground
-        game.load.image('ground', 'assets/platform.png');
+        game.load.image('ground', 'assets/background_tiles.png');
 
         // Load the clouds
         game.load.image('cloud', 'assets/cloud_01.png');        
