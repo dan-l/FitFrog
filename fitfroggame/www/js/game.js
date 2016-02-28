@@ -122,7 +122,6 @@ FitFrog.Game.prototype = {
         if (SCREEN_WIDTH - 50 > this.lastObject.x && this.lastObject.x > SCREEN_WIDTH - 80)
             return;
         var prob = Math.random();
-        // console.log(prob);
         if (prob > 0.9) {
             this.addMonster();
         } else if (prob > 0.7) {
@@ -275,7 +274,12 @@ FitFrog.Game.prototype = {
         // Stop timer.
         game.time.events.remove(this.timer);
 
-        alert("FIGHTING!");
+        navigator.notification.alert(
+            'FIRE DRAGON would like to battle',
+            null,
+            'Fight Club',
+            'Fight'
+        );
         this.fightMonster(b, this.postFightMonster);
     },
 
@@ -299,7 +303,12 @@ FitFrog.Game.prototype = {
 
     postFightMonster: function(b, tags, victory) {
         if (victory) {
-            alert('You win ', tags)
+            navigator.notification.alert(
+                'The item is super effective! You have defeated the FIRE DRAGON!',
+                null,
+                'Game Over',
+                'Well Done'
+            );
             this.game.paused = false;
             b.kill();
             // Restart timer.
@@ -310,7 +319,12 @@ FitFrog.Game.prototype = {
             // }, this);
 
         } else {
-            alert('You lose ', tags);
+            navigator.notification.alert(
+                'The item is not very effective.. Try again.',
+                null,
+                'Game Over',
+                'Try again'
+            );
             this.fightMonster(b, this.postFightMonster)
         }
     },
