@@ -86,7 +86,7 @@ FitFrog.Game.prototype = {
     addItem: function() {
         var prob = Math.random();
         console.log(prob);
-        if (prob > 0.2) {
+        if (prob > 0.9) {
             this.addMonster();
         } else if (prob > 0.7) {
             this.addBox();
