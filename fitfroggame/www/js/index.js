@@ -51,7 +51,7 @@ var app = {
              //Both
              desiredAccuracy: 10, // Desired Accuracy of the location updates (lower means more accurate but more battery consumption)
              distanceFilter: 1, // (Meters) How far you must move from the last point to trigger a location update
-             debug: true, // <-- Enable to show visual indications when you receive a background location update
+             debug: false, // <-- Enable to show visual indications when you receive a background location update
              interval: 1000, // (Milliseconds) Requested Interval in between location updates.
              //Android Only
              notificationTitle: 'BG Plugin', // customize the title of the notification
@@ -85,21 +85,9 @@ var app = {
             oldLon = newLon;
             oldTime = newTime;
 
-            // Update display.
-            var element = document.getElementById('accelerometer');
-            element.innerHTML = 'speed: ' + speed;
         }, function(err) {
              console.log("Error: Didnt get an update", err);
         });
-
-
-        bgLocationServices.registerForActivityUpdates(function(activities) {
-             console.log("We got an BG Update" + JSON.stringify(activities));
-        }, function(err) {
-             console.log("Error: Something went wrong", err);
-        });
-
-        bgLocationServices.start();
 
 
         bgLocationServices.registerForActivityUpdates(function(activities) {
