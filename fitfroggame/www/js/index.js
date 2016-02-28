@@ -34,6 +34,13 @@ var app = {
     // function, we must explicitly call 'app.receivedEvent(...);'
     onDeviceReady: function() {
         app.receivedEvent('deviceready');
+        console.log(navigator.camera);
+        console.log(Clarifai);
+        Clarifai.run("http://blogs-images.forbes.com/insertcoin/files/2014/06/flappy-bird.jpg",
+        function(tags) {
+            console.log(tags);
+        });
+
     },
     // Update DOM on a Received Event
     receivedEvent: function(id) {

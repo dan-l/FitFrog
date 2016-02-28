@@ -1,0 +1,21 @@
+{
+  "name": "fitfroggame",
+  "homepage": "https://github.com/ameliayap/FitFrog",
+  "authors": [
+    "Dan <daniel9618@gmail.com>"
+  ],
+  "description": "",
+  "main": "",
+  "moduleType": [],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "aja": "^0.4.1"
+  }
+}
