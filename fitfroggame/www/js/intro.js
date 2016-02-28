@@ -28,6 +28,7 @@ FitFrog.Intro.prototype = {
             console.log("This is new user");
             this.input = document.createElement("input");
             this.input.type = "text";
+            this.input.addEventListener("keyup",this.keyBoardHideHandler.bind(this));
             this.gameDiv = document.getElementById("game");
             //name of the user
             this.input.style.position = "absolute";
@@ -44,6 +45,15 @@ FitFrog.Intro.prototype = {
             console.log("This is returning user");
             var resume_button = game.add.button(centerX-20, centerY + 30, 'btn_resume', this.actionResumeOnClick, this, 2, 1, 0);
             var restart_button = game.add.button(centerX-20, centerY + 90, 'btn_restart', this.actionRestartOnClick, this, 2, 1, 0);
+        }
+    },
+
+    keyBoardHideHandler: function(e) {
+        var theEvent = e || window.event;
+        var keyPressed = theEvent.keyCode || theEvent.which;
+        if (keyPressed == 13) {
+            cordova.plugins.Keyboard.close();
+            this.actionPlayOnClick();
         }
     },
 
