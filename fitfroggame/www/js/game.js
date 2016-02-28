@@ -152,7 +152,7 @@ FitFrog.Game.prototype = {
     },
 
     addBox: function() {
-        var box = this.boxes.create(SCREEN_WIDTH - 60, SCREEN_HEIGHT - 150, 'box');
+        var box = this.boxes.create(SCREEN_WIDTH - 60, SCREEN_HEIGHT - 230, 'box');
         this.game.physics.arcade.enable(box);
         box.body.allowGravity = false;
         
