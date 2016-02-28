@@ -55,7 +55,7 @@ var app = {
              useActivityDetection: true // Uses Activitiy detection to shut off gps when you are still (Greatly enhances Battery Life)
 
         });
-        
+
         //Register a callback for location updates, this is where location objects will be sent in the background
         bgLocationServices.registerForLocationUpdates(function(location) {
             console.log("We got an BG Update" + JSON.stringify(location));
@@ -70,7 +70,7 @@ var app = {
                 oldTime = newTime;
                 return;
             }
-            
+
             var distance = getDistanceFromLatLonInKm(newLat, newLon, oldLat, oldLon)*1000;
             var time = (newTime - oldTime)/1000;
             speed = distance / time;
@@ -78,7 +78,7 @@ var app = {
             // Update for next iteration.
             oldLat = newLat;
             oldLon = newLon;
-            oldTime = newTime; 
+            oldTime = newTime;
 
             // Update display.
             var element = document.getElementById('accelerometer');
@@ -89,18 +89,6 @@ var app = {
 
         bgLocationServices.registerForActivityUpdates(function(activities) {
              console.log("We got an BG Update" + JSON.stringify(activities));
-             var element = document.getElementById('accelerometer');
-             element.innerHTML = 'activity: ' + JSON.stringify(activities);
-             var activitiesKey = []''
-             for (var key in activities) {
-                if activities.hasOwnProperty(key) {
-                    activitiesKey.push(key);
-                }
-             }
-             if(activitiesKey[0] !== 'STILL') {
-                console.log('should be moving');
-             }
-
         }, function(err) {
              console.log("Error: Something went wrong", err);
         });
@@ -123,18 +111,18 @@ var app = {
 function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
     var R = 6371; // Radius of the earth in km
     var dLat = this.deg2rad(lat2-lat1);  // deg2rad below
-    var dLon = this.deg2rad(lon2-lon1); 
-    var a = 
+    var dLon = this.deg2rad(lon2-lon1);
+    var a =
         Math.sin(dLat/2) * Math.sin(dLat/2) +
-        Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) * 
-        Math.sin(dLon/2) * Math.sin(dLon/2); 
-    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+        Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) *
+        Math.sin(dLon/2) * Math.sin(dLon/2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     var d = R * c; // Distance in km
     return d;
 };
 
 function deg2rad(deg) {
   return deg * (Math.PI/180)
-}; 
+};
 
 app.initialize();
