@@ -16,7 +16,10 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-var mAccel = mAccel || 0;
+var speed = speed || 0;
+var oldLat = 0;
+var oldLon = 0;
+var oldTime = 0;
 var app = {
     // Application Constructor
     initialize: function() {
@@ -52,61 +55,57 @@ var app = {
              useActivityDetection: true // Uses Activitiy detection to shut off gps when you are still (Greatly enhances Battery Life)
 
         });
-
+        
         //Register a callback for location updates, this is where location objects will be sent in the background
         bgLocationServices.registerForLocationUpdates(function(location) {
-             console.log("We got an BG Update" + JSON.stringify(location));
+            console.log("We got an BG Update" + JSON.stringify(location));
+            var newLat = location.latitude;
+            var newLon = location.longitude;
+            var newTime = location.timestamp;
+
+            // First update.
+            if (oldLat == 0 && oldLon == 0 && oldTime == 0) {
+                oldLat = newLat;
+                oldLon = newLon;
+                oldTime = newTime;
+                return;
+            }
+            
+            var distance = getDistanceFromLatLonInKm(newLat, newLon, oldLat, oldLon)*1000;
+            var time = (newTime - oldTime)/1000;
+            speed = distance / time;
+
+            // Update for next iteration.
+            oldLat = newLat;
+            oldLon = newLon;
+            oldTime = newTime; 
+
+            // Update display.
+            var element = document.getElementById('accelerometer');
+            element.innerHTML = 'speed: ' + speed;
         }, function(err) {
              console.log("Error: Didnt get an update", err);
         });
 
         bgLocationServices.registerForActivityUpdates(function(activities) {
              console.log("We got an BG Update" + JSON.stringify(activities));
+             var element = document.getElementById('accelerometer');
+             element.innerHTML = 'activity: ' + JSON.stringify(activities);
+             var activitiesKey = []''
+             for (var key in activities) {
+                if activities.hasOwnProperty(key) {
+                    activitiesKey.push(key);
+                }
+             }
+             if(activitiesKey[0] !== 'STILL') {
+                console.log('should be moving');
+             }
+
         }, function(err) {
              console.log("Error: Something went wrong", err);
         });
 
-
-
         bgLocationServices.start();
-
-        // console.log(navigator.camera);
-        // console.log(Clarifai);
-        // navigator.camera.getPicture(function cameraCallback(imageData) {
-        //    var image = imageData;
-        //    Clarifai.run(image,
-        //    function(tags) {
-        //        console.log(tags);
-        //    });
-        // }, function error(err) {
-        //     console.log(err);
-        // }, {
-        //     destinationType: Camera.DestinationType.DATA_URL
-        // });
-
-        // var options = { frequency: 200 };  // Update every 3 seconds
-
-        // var watchID = navigator.accelerometer.watchAcceleration(onSuccess, onError, options);
-
-        // function onSuccess(acceleration) {
-        //     var x = acceleration.x;
-        //     var y = acceleration.y;
-        //     var z = acceleration.z;
-
-        //     var mAccelCurrent = Math.sqrt(x*x + y*y + z*z);
-        //     mAccel = mAccel * 0.9 + mAccelCurrent * 0.1;
-        //     var element = document.getElementById('accelerometer');
-        //     element.innerHTML = 'Acceleration X: ' + acceleration.x         + '<br />' +
-        //                         'Acceleration Y: ' + acceleration.y         + '<br />' +
-        //                         'Acceleration Z: ' + acceleration.z         + '<br />' +
-        //                         'mAccel: '      + mAccel + '<br />';
-        // }
-        // // onError: Failed to get the acceleration
-        // //
-        // function onError() {
-        //     alert('onError!');
-        // }
-
     },
     // Update DOM on a Received Event
     receivedEvent: function(id) {
@@ -120,5 +119,22 @@ var app = {
         console.log('Received Event: ' + id);
     }
 };
+
+function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
+    var R = 6371; // Radius of the earth in km
+    var dLat = this.deg2rad(lat2-lat1);  // deg2rad below
+    var dLon = this.deg2rad(lon2-lon1); 
+    var a = 
+        Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(this.deg2rad(lat1)) * Math.cos(this.deg2rad(lat2)) * 
+        Math.sin(dLon/2) * Math.sin(dLon/2); 
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+    var d = R * c; // Distance in km
+    return d;
+};
+
+function deg2rad(deg) {
+  return deg * (Math.PI/180)
+}; 
 
 app.initialize();
