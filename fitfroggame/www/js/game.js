@@ -62,7 +62,7 @@ FitFrog.Game.prototype = {
         this.boxes = this.game.add.group();
         //game.add.sprite(0, 0, 'sky');
 
-        this.clouds=this.game.add.sprite(game.world.width/2, game.world.height/2, 'cloud');
+        this.clouds=this.game.add.sprite(0, 0, 'cloud');
         this.animateCloud();
         // Pause button 
 
@@ -132,7 +132,7 @@ FitFrog.Game.prototype = {
     animateCloud: function() {
         var centerX = this.game.world.centerX;
         var centerY = this.game.world.centerY;
-        var tween1 = this.game.add.tween(this.clouds).to({x: centerX - 250}, 4000, Phaser.Easing.Back.InOut, true, 0, Infinity, true);
+        var tween1 = this.game.add.tween(this.clouds).to({x: centerX - 250}, 4000, Phaser.Easing.Elastic.InOut, true, 0, Infinity, true);
         //var tween2 = this.game.add.tween(this.clouds).to({x: centerX + 2000}, 2500);
         //tween1.chain(tween2);
         
@@ -223,7 +223,7 @@ FitFrog.Game.prototype = {
         if (this.frog.inWorld == false)
             this.restartGame();
         if (speed > 2.3 && this.running == false) {
-            velocity = (200/3.7)*(speed - 2.3) + 100;
+            velocity = (200/3.7)*(speed - 2.3) + 70;
             this.startRunning(velocity);
         } else if (speed < 2.3 && this.running == true) {
             this.stopRunning();
@@ -295,17 +295,19 @@ FitFrog.Game.prototype = {
         // Stop timer.
         game.time.events.remove(this.timer);
 
+        this.game.paused = true;
         navigator.notification.alert(
             'FIRE DRAGON would like to battle',
-            null,
+            function() {
+                this.fightMonster(b, this.postFightMonster);
+            }.bind(this),
             'Fight Club',
             'Fight'
         );
-        this.fightMonster(b, this.postFightMonster);
+        
     },
 
     fightMonster: function(b, cb) {
-        this.game.paused = true;
         var monster = b.key;
         var weapons = this.fight[monster];
         navigator.camera.getPicture.call(this, function cameraCallback(imageData) {
@@ -326,27 +328,31 @@ FitFrog.Game.prototype = {
         if (victory) {
             navigator.notification.alert(
                 'The item is super effective! You have defeated the FIRE DRAGON!',
-                null,
-                'Game Over',
-                'Well Done'
+                function() {
+                    this.game.paused = false;
+                    b.kill();
+                    // Restart timer.
+                    this.timer = this.game.time.events.loop(1000, this.addItem, this);
+                    // Go through all the pipes, and stop their movement
+                    // this.pipes.forEachAlive(function(p){
+                    //     p.body.velocity.x = 0;
+                    // }, this);
+                }.bind(this),
+                'Well Done',
+                'Congratulations'
             );
-            this.game.paused = false;
-            b.kill();
-            // Restart timer.
-            this.timer = this.game.time.events.loop(1000, this.addItem, this);
-            // Go through all the pipes, and stop their movement
-            // this.pipes.forEachAlive(function(p){
-            //     p.body.velocity.x = 0;
-            // }, this);
+           
 
         } else {
             navigator.notification.alert(
                 'The item is not very effective.. Try again.',
-                null,
+                function() {
+                    this.fightMonster(b, this.postFightMonster)
+                }.bind(this),
                 'Game Over',
                 'Try again'
             );
-            this.fightMonster(b, this.postFightMonster)
+            
         }
     },
 
