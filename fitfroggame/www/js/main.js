@@ -31,7 +31,8 @@ var mainState = {
         this.bird.body.gravity.y = 1000;  
 
         // Call the 'jump' function when touched
-        //var spaceKey = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+        var spaceKey = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+        spaceKey.onDown.add(this.jump, this);
         game.input.onDown.add(this.jump, this);    
 
         this.pipes = game.add.group(); // Create a group  
